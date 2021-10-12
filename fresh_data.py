@@ -20,7 +20,7 @@ import json
 import pandas as pd
 
 
-def existingWHOData(countryName):
+def freshWHOData(countryName):
     url = 'https://covid.ourworldindata.org/data/owid-covid-data.json'    
     response = urlopen(url)
     df = pd.read_json(url)
