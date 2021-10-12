@@ -109,9 +109,19 @@ def get_yt_metadata(city_str):
             j = j + 1
         id_list.append(id_str)  
     
-    api_key = 'AIzaSyDKzsR_tYoiiT6cvjfNoM7DlDR-0vFnM-g'
-    service = build('youtube', 'v3', developerKey = api_key) 
-    # fout = open('/Users/queen/OneDrive/url.json', 'wt', encoding = 'utf-8')
+    api_bad = True
+    while api_bad:
+        print("Enter an API key")
+        api_key = input()
+        service = build('youtube', 'v3', developerKey = api_key)
+        try:
+            request = service.videos().list(part = 'statistics',id=id_list[0]) 
+            response = request.execute()
+        except: 
+            print("Not a valid API key. Please try again.")
+            api_key = 'bad key'
+        if api_key != 'bad key':
+            api_bad = False 
     
     #Creates an empty data frame that will be populated with info from APIs
     yt_data_df = pd.DataFrame(np.nan, index=[i for i in range(len(URL_list))], columns=['URL','Video Title', 'Channel Title', 'Views', 'Likes', 'Dislikes', 'Comments', 'Date', 'Duration', 'Definition', 'Captions', 'Licensed Content'])
@@ -124,7 +134,6 @@ def get_yt_metadata(city_str):
     for i in id_list:
         request = service.videos().list(part = 'statistics',id=i) 
         response = request.execute()
-        # json.dump(response, fout)
         try:
             yt_data_df.loc[row_num, 'Views'] = response['items'][0]['statistics']['viewCount'] 
         except:
@@ -143,7 +152,6 @@ def get_yt_metadata(city_str):
             yt_data_df.loc[row_num, 'Comments'] = 0
         request = service.videos().list(part = 'contentDetails',id=i) 
         response = request.execute()
-        # json.dump(response, fout)
         duration_str = response['items'][0]['contentDetails']['duration']
         duration_str = duration_str.replace('PT', '')
         duration_str = duration_str.replace('H', ' hours ')
@@ -161,17 +169,16 @@ def get_yt_metadata(city_str):
             yt_data_df.loc[row_num, 'Licensed Content'] = 'No'
         request = service.videos().list(part = 'snippet',id=i) 
         response = request.execute()
-        # json.dump(response, fout)
         yt_data_df.loc[row_num, 'Date'] = (response['items'][0]['snippet']['publishedAt'])[0:10]
         vid_datetime = (response['items'][0]['snippet']['publishedAt'])[0:10] + ' ' + (response['items'][0]['snippet']['publishedAt'])[11:18]
         datetime_str_list.append(vid_datetime)
         yt_data_df.loc[row_num, 'Video Title'] = response['items'][0]['snippet']['title'] 
         yt_data_df.loc[row_num, 'Channel Title'] = response['items'][0]['snippet']['channelTitle'] 
         row_num = row_num + 1
-    # fout.close()
     
     yt_data_df = yt_data_df.set_index('URL')
     
+    #Creates timestamps to help find average date of videos returned
     datetime_list = []
     timestamp_list = []
     format = '%Y-%m-%d %H:%M:%S'
