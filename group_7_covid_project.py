@@ -31,6 +31,8 @@ def fresh_country_state_selector():
             if choice == 2:
                 country_code = take_iso3166_input()
                 who_df, score = freshWHOData(country_code)
+                if who_df is None:
+                    return
                 display_intl_data(who_df, score, country_code)
                 return
         except ValueError:
@@ -234,7 +236,7 @@ def display_intl_data(who_df, score, country_code):
         except ValueError:
             print("You must enter '1' or '2'!")
 
-    print("For" + country_code+ ", the risk score is currently" + str(score))
+    print("For " + country_code+ ", the risk score is currently " + str(score))
     return
 
 def get_eventbrite_list_data(eventListLink, base_url, zip_code):
