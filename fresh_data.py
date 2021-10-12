@@ -14,19 +14,23 @@ def freshWHOData(countryName):
     response = urlopen(url)
     df = pd.read_json(url)
     df = df.transpose()
-    
-    # check if the countryName is valid
-    if (countryName not in df.index.values):
+
+    # check if the countryCode is valid
+    if (countryCode not in df.index.values):
         print("Sorry, no data for this country. Please try another one.")
         return
-    
+
+    df['iso_code'] = df.index
+    df = df.loc[df['iso_code'] == countryCode]
     index = pd.Series(range(len(df)))
     df = df.set_index(index)
-
-    countryData = {'location':[],'date':[],'new_cases':[],'new_deaths':[], \
+    
+    countryData = {'iso_code':[], 'location':[],'date':[],'new_cases':[],'new_deaths':[], \
             'people_vaccinated':[],'population_density':[]}
-    for d in df.loc[df['location'] == countryName]['data'][0]:
-        countryData['location'].append(countryName)
+
+    for d in df.loc[df['iso_code'] == countryCode]['data'][0]:
+        countryData['iso_code'].append(countryCode)
+        countryData['location'].append(df.loc[df['iso_code'] == countryCode]['location'][0])
         countryData['date'].append(d['date'])
         if 'new_cases' in d.keys():
             countryData['new_cases'].append(d['new_cases'])
