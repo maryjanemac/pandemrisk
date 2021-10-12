@@ -62,34 +62,29 @@ def WHOData(countryName):
     return countryData, score
 
 # Shuxuan Liu 
-def CDCData(stateName):
-    url = 'https://data.cdc.gov/resource/9mfq-cb36.json'    
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, "html.parser")
-
-    # Read data from url into textfile
-    fout = open('/Users/liushuxuan/Desktop/Grad School/21Fall/DFP/Final Project/CDCData.txt', 'wt',
-                encoding='utf-8')
-    fout.write(page.text)
-    fout.close()
-
-    # Read data from textfile into dataframe
-    df = pd.read_json('/Users/liushuxuan/Desktop/Grad School/21Fall/DFP/Final Project/CDCData.txt')
-
+def freshCDCData(stateName):  
+    
+    csv_url = "https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLOAD"
+    
+    response = urlopen(csv_url)
+    df = pd.read_csv(csv_url)
+    """csv_file = open('United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv', 'wb')
+    csv_file.write(url_content)
+    csv_file.close()"""
+    
     # Clean the data and retireve based on state
-    # stateName = input("Please enter the state name\n")
     stateData = df.loc[df['state'] == stateName][['submission_date', 'state', 'tot_cases', 'new_case', 
                                                   'tot_death', 'new_death']]
     stateData.submission_date = stateData.submission_date.replace({'T00:00:00.000':''}, regex=True)
     stateData = stateData.sort_values(by=['submission_date'])
     index = pd.Series(range(len(stateData)))
     stateData = stateData.set_index(index)
-    
-    # Calculate score
     stateData['score'] = stateData.index * (stateData.new_case + abs(stateData.new_death)) / 10000
-    score = sum(stateData['score']) / 50
     
-    return stateData, score
+    score = sum(stateData['score']) / 50
+       
+    return stateData[['submission_date', 'state', 'tot_cases', 'new_case', 
+                                                  'tot_death', 'new_death']], score
 
 #Mary Jane MacArthur
 def get_yt_metadata(city_str):
