@@ -8,7 +8,7 @@ import os
 import sys
 
 
-def WHOData(countryName):
+def existingWHOData(countryName):
     url = 'https://covid.ourworldindata.org/data/owid-covid-data.json'    
     response = urlopen(url)
     # data = json.loads(response.read())
