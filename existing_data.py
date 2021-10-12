@@ -9,16 +9,19 @@ import pandas as pd
 def WHOData(countryName):
     url = 'https://covid.ourworldindata.org/data/owid-covid-data.json'    
     response = urlopen(url)
+    # data = json.loads(response.read())
     df = pd.read_json(url)
     df = df.transpose()
+    df['country_code'] = df.index
     index = pd.Series(range(len(df)))
     df = df.set_index(index)
 
-    countryData = {'location':[],'date':[],'new_cases':[],'new_deaths':[], \
+    countryData = {'code':[], 'location':[],'date':[],'new_cases':[],'new_deaths':[], \
             'people_vaccinated':[],'population_density':[]}
 
-    for d in df.loc[df['location'] == countryName]['data'][0]:
-        countryData['location'].append(countryName)
+    for d in df.loc[df['country_code'] == countryName]['data'][0]:
+        countryData['code'].append(countryName)
+        countryData['location'].append(df.loc[df['country_code'] == countryName]['location'][0])
         countryData['date'].append(d['date'])
         if 'new_cases' in d.keys():
             countryData['new_cases'].append(d['new_cases'])
