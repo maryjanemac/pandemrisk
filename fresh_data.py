@@ -14,6 +14,12 @@ def freshWHOData(countryName):
     response = urlopen(url)
     df = pd.read_json(url)
     df = df.transpose()
+    
+    # check if the countryName is valid
+    if (countryName not in df.index.values):
+        print("Sorry, no data for this country. Please try another one.")
+        return
+    
     index = pd.Series(range(len(df)))
     df = df.set_index(index)
 
