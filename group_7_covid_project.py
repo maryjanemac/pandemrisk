@@ -302,6 +302,8 @@ def get_eventbrite_list_data(eventListLink, base_url, zip_code):
 print("Pandemrisk v1.0.0")
 print("COVID-19 Risk Assessment Toolkit")
 print("Copyright © 2021 Pandemrisk Team")
+print("""ATTENTION! ALL RISK ASSESSMENT SCORES IN PANDEMRISK TO BE
+      INTERPRETED ACCORDING TO DIRECTIONS IN MANUAL (README FILE)""")
 print("Please select a data source: ")
 print("   1. Use Pre-crawled Data (Limited Locations Available)")
 print("   2. Retrieve Fresh Data (Might take a while)")
