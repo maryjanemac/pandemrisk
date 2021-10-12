@@ -9,7 +9,7 @@ import sys
 
 
 def existingWHOData(countryName):
-    df = pd.read_csv('/Users/rachel/CMU/Courses/21fall/95888 DFP/hw/final project/who_data.csv')
+    df = pd.read_csv('who_data.csv')
 
     # check if the countryName is valid
     if (countryName not in df['iso_code'].values):
