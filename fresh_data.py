@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 with open('geo-data.csv', newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    spamreader = csv.reader(csvfile, delimiter=',', quotechar='"', skipinitialspace = True)
     for row in spamreader:
         print(row)
 
