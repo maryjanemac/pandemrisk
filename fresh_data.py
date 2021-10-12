@@ -18,7 +18,7 @@ def freshWHOData(countryCode):
     # check if the countryCode is valid
     if (countryCode not in df.index.values):
         print("Sorry, no data for this country. Please try another one.")
-        return
+        return None, None
 
     df['iso_code'] = df.index
     df = df.loc[df['iso_code'] == countryCode]
