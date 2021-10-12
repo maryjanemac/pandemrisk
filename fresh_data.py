@@ -9,7 +9,7 @@ from urllib.request import urlopen
 import pandas as pd
 
 
-def freshWHOData(countryName):
+def freshWHOData(countryCode):
     url = 'https://covid.ourworldindata.org/data/owid-covid-data.json'    
     response = urlopen(url)
     df = pd.read_json(url)
