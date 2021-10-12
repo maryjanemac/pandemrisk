@@ -122,14 +122,14 @@ def get_fresh_us_data():
 
         events = [[event[0], event[2], event[3]] for event in events]
         cdc_df, cdc_score = freshCDCData(state)
-        yt_df, yt_score = pre_cr_metadata(city)
+        yt_df, yt_score = get_yt_metadata(city)
         eb_df = pd.DataFrame(events, columns = ['EventName', 'EventTime', 'EventPopularity'])
         eb_score = sum(event[2] for event in events) / len(events)
         display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score)
     else:
         city, state = zip_codes[zip_code][0], zip_codes[zip_code][1]
         cdc_df, cdc_score = freshCDCData(state)
-        yt_df, yt_score = pre_cr_metadata(city)
+        yt_df, yt_score = get_yt_metadata(city)
         eb_df = pd.DataFrame(columns = ['EventName', 'EventTime', 'EventPopularity'])
         eb_score = 0
         display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score)
@@ -151,21 +151,21 @@ def get_existing_data():
                 zip_code = 15213
                 cdc_df, cdc_score = existingCDCData(choice)
                 yt_df, yt_score = pre_cr_metadata(choice)
-                eb_df, eb_score = existing_eb_data()
+                eb_df, eb_score = existing_eb_data(zip_code)
                 display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score)
                 break
             if choice == 2:
                 zip_code = 97203
                 cdc_df, cdc_score = existingCDCData(choice)
                 yt_df, yt_score = pre_cr_metadata(choice)
-                eb_df, eb_score = existing_eb_data()
+                eb_df, eb_score = existing_eb_data(zip_code)
                 display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score)
                 break
             if choice == 3:
                 zip_code = 63105
                 cdc_df, cdc_score = existingCDCData(choice)
                 yt_df, yt_score = pre_cr_metadata(choice)
-                eb_df, eb_score = existing_eb_data()
+                eb_df, eb_score = existing_eb_data(zip_code)
                 display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score)
                 break
             if choice == 4:
@@ -178,8 +178,16 @@ def get_existing_data():
 
     return
 
-def existing_eb_data():
-    return 0, 2
+def existing_eb_data(zip_code):
+    filename = "eventbrite-" + str(zip_code) + ".csv"
+    eb_data = []
+    with open(filename, newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for row in spamreader:
+            eb_data.append([row[0], row[1], int(row[2])])
+    eb_df = pd.DataFrame(eb_data, columns=['EventName', 'EventTime', 'EventPopularity'])
+    eb_score = sum(ebd[2] for ebd in eb_data) / len(eb_data)
+    return eb_df, eb_score
 
 def display_us_data(cdc_df, cdc_score, yt_df, yt_score, eb_df, eb_score):
     print("Would you like to see the detailed dataframe of data from the following sources?")
@@ -247,7 +255,7 @@ def get_eventbrite_list_data(eventListLink, base_url, zip_code):
 
     contentDiv = driver.find_element_by_css_selector(".search-main-content")
     listElements = contentDiv.find_elements_by_css_selector("li")
-    print(driver.find_element_by_css_selector("title").text)
+
     for le in listElements:
         title = ""
         followCount = ""
@@ -259,7 +267,7 @@ def get_eventbrite_list_data(eventListLink, base_url, zip_code):
             pat = r'\+'
             if re.search(pat, eventTime)!= None:
                 eventTime = eventTime.split("+")[0]
-            print(eventTime)
+            # print(eventTime)
             parsed_date = dateparser.parse(eventTime)
             pat = r'k'
             followCount = 0
@@ -269,19 +277,19 @@ def get_eventbrite_list_data(eventListLink, base_url, zip_code):
             else:
                 followCount = int(followCountText)
         except NoSuchElementException:
-            print("Not all fields captured for this entry!")
+            pass
 
-        print(title, eventLink, parsed_date, followCount)
+        # print(title, eventLink, parsed_date, followCount)
         events.append([title, eventLink, parsed_date, followCount, zip_code])
 
     paginationText = driver.find_element_by_css_selector(".eds-pagination__navigation-minimal").text
     paginationArray = paginationText.split(" of ")
 
-    if int(paginationArray[0]) < 10:
+    if int(paginationArray[0]) < 3:
         if (int(paginationArray[0]) + 1) <= int(paginationArray[1]):
             next_url = base_url + "?page=" + str(int(paginationArray[0]) + 1)
             driver.close()
-            return events + get_eventbrite_list_data(next_url, base_url, zip_code), city, state
+            return events + get_eventbrite_list_data(next_url, base_url, zip_code)[0], city, state
         else:
             driver.close()
             return events, city, state
