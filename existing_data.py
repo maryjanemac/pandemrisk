@@ -9,40 +9,18 @@ import sys
 
 
 def existingWHOData(countryName):
-    url = 'https://covid.ourworldindata.org/data/owid-covid-data.json'    
-    response = urlopen(url)
-    # data = json.loads(response.read())
-    df = pd.read_json(url)
-    df = df.transpose()
-    df['country_code'] = df.index
-    index = pd.Series(range(len(df)))
-    df = df.set_index(index)
+    df = pd.read_csv('who_data.csv')
 
-    countryData = {'code':[], 'location':[],'date':[],'new_cases':[],'new_deaths':[], \
-            'people_vaccinated':[],'population_density':[]}
+    # check if the countryName is valid
+    if (countryName not in df['iso_code'].values):
+        print("Sorry, no data for this country. Please try another one.")
+        return
 
-    for d in df.loc[df['country_code'] == countryName]['data'][0]:
-        countryData['code'].append(countryName)
-        countryData['location'].append(df.loc[df['country_code'] == countryName]['location'][0])
-        countryData['date'].append(d['date'])
-        if 'new_cases' in d.keys():
-            countryData['new_cases'].append(d['new_cases'])
-        else:
-            countryData['new_cases'].append(NaN)
-        if 'new_deaths' in d.keys():
-            countryData['new_deaths'].append(d['new_deaths'])
-        else:
-            countryData['new_deaths'].append(NaN)
-        if 'people_vaccinated' in d.keys():
-            countryData['people_vaccinated'].append(d['people_vaccinated'])
-        else:
-            countryData['people_vaccinated'].append(NaN)
-        if 'population_density' in d.keys():
-            countryData['population_density'].append(d['population_density'])
-        else:
-            countryData['population_density'].append(NaN) 
-    countryData = pd.DataFrame(countryData)
-    # print(countryData)
+    df = df[['iso_code', 'location','date','new_cases','new_deaths', \
+            'people_vaccinated','population_density']]
+    # print(df)
+
+    countryData = df.loc[df['iso_code'] == countryName]
 
     # calculate the score
     score = 0
