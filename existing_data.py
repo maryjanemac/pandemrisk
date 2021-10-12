@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import json
 import pandas as pd
+import os
+import sys
 
 
 def WHOData(countryName):
@@ -77,3 +79,31 @@ def existingCDCData(choice):
     
     return stateData[['submission_date', 'state', 'tot_cases', 'new_case', 
                                                   'tot_death', 'new_death']], score
+
+#Mary Jane MacArthur
+def pre_cr_metadata(city_int):
+    dirname = os.path.dirname(__file__)
+    if city_int == 1: #Pittsburgh
+        pre_cr_df = pd.read_csv(os.path.join(dirname, 'Pitt_data.csv'))
+        score = 1
+        return_items = []
+        return_items.append(pre_cr_df)
+        return_items.append(score)
+        return return_items
+    elif city_int == 2: #Portland
+        pre_cr_df = pd.read_csv(os.path.join(dirname, 'Port_data.csv'))
+        score = 1
+        return_items = []
+        return_items.append(pre_cr_df)
+        return_items.append(score)
+        return return_items
+    elif city_int == 3: #St Louis
+        pre_cr_df = pd.read_csv(os.path.join(dirname, 'StLouis_data.csv'))
+        score = 2
+        return_items = []
+        return_items.append(pre_cr_df)
+        return_items.append(score)
+        return return_items
+    else:
+        print("Please enter, 1, 2, or 3")
+        return
