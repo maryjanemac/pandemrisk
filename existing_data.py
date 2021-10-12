@@ -47,3 +47,30 @@ def WHOData(countryName):
     score = sum(df_score['score']) / 100000
 
     return countryData, score
+
+def existingCDCData(choice):
+    
+    if choice == 1:
+        stateName = 'PA'
+    elif choice == 2:
+        stateName = 'OR'
+    elif choice == 3:
+        stateName = 'MO'
+        
+    # Read data from file into dataframe
+    df = pd.read_csv('United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv')
+    
+    df.submission_date = df.submission_date.replace({'T00:00:00.000':''}, regex=True)
+    
+    # Clean the data and retireve based on state
+    stateData = df.loc[df['state'] == stateName][['submission_date', 'state', 'tot_cases', 'new_case', 
+                                                  'tot_death', 'new_death']]
+    stateData = stateData.sort_values(by=['submission_date'])
+    index = pd.Series(range(len(stateData)))
+    stateData = stateData.set_index(index)
+    stateData['score'] = stateData.index * (stateData.new_case + abs(stateData.new_death)) / 10000
+    
+    score = sum(stateData['score']) / 50
+    
+    return stateData[['submission_date', 'state', 'tot_cases', 'new_case', 
+                                                  'tot_death', 'new_death']], score
